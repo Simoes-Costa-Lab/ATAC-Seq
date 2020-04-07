@@ -51,7 +51,7 @@ do
 	bowtie2 --local --very-sensitive-local \
 		--no-unal --no-mixed --no-discordant \
 		--threads 16 \
-		-x /home/ash274/workdir/genome/bowtie2-GRCg6a/GRCg6a \
+		-x /data/Austin/workdir/genome/bowtie2-GRCg6a/GRCg6a \
 		-X 2000 \
 		-1 "trimmed_${F1}" \
 		-2 "trimmed_${F2}" \
