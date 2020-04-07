@@ -52,7 +52,7 @@ do
 		--no-unal --no-mixed --no-discordant \
 		--threads 16 \
 		-x /data/Austin/workdir/genome/bowtie2-GRCg6a/GRCg6a \
-		-X 2000 \
+		-X 850 \
 		-1 "trimmed_${F1}" \
 		-2 "trimmed_${F2}" \
 		-S ${F1/_R1.fastq/toGalGal6.SAM}
@@ -67,7 +67,7 @@ echo "Reads Aligned: $(date)" >> timelog.txt
 
 for FILE in ./trimmedFastq/*.SAM
 do
-	samtools view -bS -@ 16 $FILE |
+    samtools view -bS -@ 16 $FILE |
     samtools sort -@ 16 > "${FILE/.SAM/.BAM}" &&
     samtools index -@ 16 "${FILE/.SAM/.BAM}"
 done
