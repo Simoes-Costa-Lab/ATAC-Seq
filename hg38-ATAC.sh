@@ -1,4 +1,9 @@
-#Start with fastq's in a folder named fastq with SE or PE reads with _1 or _2.fastq
+# Now with automatic file parsing!
+
+cd fastq 
+find ./*.fastq.gz -type f -maxdepth 1 | cut -c3- | rev | cut -c4- | rev | paste -sd ';\n' > filePairs.txt
+cd ..
+
 source /etc/profile.d/apps.sh
 
 echo "Program Started: $(date)" > timelog.txt
