@@ -1,7 +1,14 @@
 # Now with automatic file parsing!
 
-cd fastq 
-find ./*.fastq.gz -type f -maxdepth 1 | cut -c3- | rev | cut -c4- | rev | paste -sd ';\n' > filePairs.txt
+cd fastq
+var=( $(ls) )
+if [ "${var[0]##*.}" = "gz" ]; then
+       find ./*.fastq.gz -type f -maxdepth 1 | cut -c3- | rev | cut -c4- | rev | paste -sd ';\n' > filePairs.txt
+   fi
+   
+if [ "${var[0]##*.}" = "fastq" ]; then
+       find ./*.fastq -type f -maxdepth 1 | cut -c3- | paste -sd ';\n' > filePairs.txt
+   fi
 cd ..
 
 source /etc/profile.d/apps.sh
@@ -19,11 +26,11 @@ do
     F1=$(echo $FILEPAIR | awk 'BEGIN{FS=";"}{print $1}')
     F2=$(echo $FILEPAIR | awk 'BEGIN{FS=";"}{print $2}')
     echo "Paired End mode ${FILEPAIR}"
-	cutadapt -a CTGTCTCTTATACACATCT \
-	-A AGATGTGTATAAGAGACAG \
-	--minimum-length=25 -j 0 \
-	-o "trimmed_${F1}"  -p "trimmed_${F2}" \
-	${F1} ${F2} >"${F1}/_R1/_cutadapt_report.txt"
+  	cutadapt -a CTGTCTCTTATACACATCT \
+  	-A AGATGTGTATAAGAGACAG \
+  	--minimum-length=25 -j 0 \
+  	-o "trimmed_${F1}"  -p "trimmed_${F2}" \
+  	${F1} ${F2} >"${F1}_cutadapt_report.txt"
 done
 
 wait
@@ -83,7 +90,7 @@ wait
 for FILE in ./trimmedFastq/*.bam
 	do
 	{
-		mv $FILE ./bam
+		mv $FILE ./BAM
 	} &
 	done
 wait
@@ -91,12 +98,12 @@ wait
 for FILE in ./trimmedFastq/*.bai
 	do
 	{
-		mv $FILE ./bam
+		mv $FILE ./BAM
 	} &
 	done
 wait
 
-for file in ./bam/*.bam
+for file in ./BAM/*.bam
 
 do
 	java -Xmx10g -jar $PICARD MarkDuplicates \
@@ -110,7 +117,7 @@ wait
 
 echo "Duplicates marked: $(date)" >> timelog.txt
 
-for FILE in ./bam/*_nodups.bam
+for FILE in ./BAM/*_nodups.bam
 do
 	samtools sort -@ 62 $FILE -O BAM -o "${FILE/_nodups.bam/_sorted_nodups.bam}" &&
 	samtools index "${FILE/_nodups.bam/_sorted_nodups.bam}"
@@ -119,7 +126,7 @@ wait
 
 echo "Duplicates removed: $(date)" >> timelog.txt
 
-for FILE in ./bam/*_sorted_nodups.bam
+for FILE in ./BAM/*_sorted_nodups.bam
 do
 	bamCoverage --bam "$FILE" \
 			--outFileName "${FILE/.bam/.bw}" \
